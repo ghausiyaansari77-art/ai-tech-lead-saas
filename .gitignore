@@ -1,0 +1,20 @@
+# Backend
+ai-tech-lead/target/
+
+# Frontend
+ai-tech-lead-frontend/node_modules/
+ai-tech-lead-frontend/dist/
+
+# Environment / Secrets
+.env
+.env.*
+application-local.properties
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
