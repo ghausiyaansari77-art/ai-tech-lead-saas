@@ -1,5 +1,6 @@
 package com.techlead.ai_tech_lead.controller;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.techlead.ai_tech_lead.model.User;
 import com.techlead.ai_tech_lead.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // 🚀 1. SIGN UP ENDPOINT: Registers a secure user record profile layout matrix
     @PostMapping("/signup")
@@ -31,8 +34,15 @@ public class AuthController {
         }
 
         // Save the dynamic entity blueprint directly into cloud collections cluster
-        User savedUser = userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+       User savedUser = userRepository.save(user);
+
+       Map<String, Object> safeUser = new HashMap<>();
+       safeUser.put("id", savedUser.getId());
+       safeUser.put("email", savedUser.getEmail());
+       safeUser.put("fullName", savedUser.getFullName());
+
+          return ResponseEntity.status(HttpStatus.CREATED).body(safeUser);
     }
 
     // 🚀 2. LOGIN ENDPOINT: Validates credential parameters tokens against active database layers
@@ -47,8 +57,13 @@ public class AuthController {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             // Basic raw parameter verification check (Enhanced via BCrypt layers in advanced scaling)
-            if (user.getPassword().equals(password)) {
-                return ResponseEntity.ok(user); // Returns full user context footprint to frontend cache state
+            if (passwordEncoder.matches(password, user.getPassword())) {
+               Map<String, Object> safeUser = new HashMap<>();
+              safeUser.put("id", user.getId());
+              safeUser.put("email", user.getEmail());
+               safeUser.put("fullName", user.getFullName());
+
+                return ResponseEntity.ok(safeUser); // Returns full user context footprint to frontend cache state
             }
         }
 

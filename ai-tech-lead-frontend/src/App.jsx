@@ -1301,15 +1301,15 @@ function App() {
                             'string'
                               ? summary.slice(
                                   0,
-                                  300
+                                  3000
                                 )
                               : JSON.stringify(
                                   summary
-                                ).slice(0, 300)}
+                                ).slice(0, 3000)}
                             {typeof summary ===
                               'string' &&
                               summary.length >
-                                300
+                                3000
                               ? '...'
                               : ''}
                           </p>
