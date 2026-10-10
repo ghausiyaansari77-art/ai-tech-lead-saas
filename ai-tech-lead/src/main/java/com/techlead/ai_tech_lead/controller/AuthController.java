@@ -54,21 +54,44 @@ public class AuthController {
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            // Basic raw parameter verification check (Enhanced via BCrypt layers in advanced scaling)
-            if (passwordEncoder.matches(password, user.getPassword())) {
-               Map<String, Object> safeUser = new HashMap<>();
-              safeUser.put("id", user.getId());
-              safeUser.put("email", user.getEmail());
-               safeUser.put("fullName", user.getFullName());
+       if (userOpt.isPresent()) {
+    User user = userOpt.get();
 
-                return ResponseEntity.ok(safeUser); // Returns full user context footprint to frontend cache state
-            }
+    boolean passwordMatches;
+
+    if (user.getPassword() != null &&
+            user.getPassword().startsWith("$2a$")) {
+
+        passwordMatches = passwordEncoder.matches(
+                password,
+                user.getPassword()
+        );
+
+    } else {
+        // Legacy plaintext password migration
+        passwordMatches = password.equals(user.getPassword());
+
+        if (passwordMatches) {
+            user.setPassword(passwordEncoder.encode(password));
+            userRepository.save(user);
         }
+    }
+
+    if (passwordMatches) {
+        Map<String, Object> safeUser = new HashMap<>();
+
+        safeUser.put("id", user.getId());
+        safeUser.put("email", user.getEmail());
+        safeUser.put("fullName", user.getFullName());
+
+        return ResponseEntity.ok(safeUser);
+    }
+}
 
         response.put("error", "Authentication Mismatch: Credentials verification failed against active indices.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
 }
+    
 
